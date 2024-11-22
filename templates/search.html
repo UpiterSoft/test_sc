@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArXiv Search</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Search ArXiv Papers</h1>
+        <form method="POST" action="/">
+            <label for="query">Search Query:</label>
+            <input type="text" id="query" name="query" required>
+            <label for="max_results">Max Results:</label>
+            <input type="number" id="max_results" name="max_results" value="10" min="1">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</body>
+</html>
