@@ -16,6 +16,15 @@
             <input type="number" id="max_results" name="max_results" value="10" min="1">
             <button type="submit">Search</button>
         </form>
+
+        <h2>Recent Searches</h2>
+        <ul>
+            {% for query, max_results, timestamp in recent_queries %}
+                <li>
+                    <strong>{{ query }}</strong> (Max Results: {{ max_results }}, Date: {{ timestamp }})
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>
