@@ -10,6 +10,13 @@
     <div class="container">
         <h1>Search Results for "{{ query }}"</h1>
         <a href="/">Back to Search</a>
+
+        <form action="/download_summary" method="get" style="margin-top: 20px;">
+            <input type="hidden" name="query" value="{{ query }}">
+            <input type="hidden" name="max_results" value="10">
+            <button type="submit">Download Summary</button>
+        </form>
+
         <ul>
             {% for link, score in results %}
                 <li>
