@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 from arxiv_search_lib import search_arxiv_papers, evaluate_papers
 from database import initialize_db, save_query, get_cached_results, get_recent_queries
 
+import xml.etree.ElementTree as ET
+import io
 import os
 import requests
 from PyPDF2 import PdfReader
@@ -86,6 +88,85 @@ def download_summary():
     # Serve the Word document
     filename = f"{query.replace(' ', '_')}_summary.docx"
     return send_file(output, as_attachment=True, download_name=filename, mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+
+@app.route("/export_history", methods=["GET"])
+def export_history():
+    """
+    Export search history as an XML document.
+    """
+    # Get all queries and results from the database
+    queries = get_recent_queries(limit=100)
+
+    # Create the root element
+    history = ET.Element("history")
+
+    for query, max_results, timestamp in queries:
+        query_element = ET.SubElement(history, "query")
+
+        # Add query text
+        ET.SubElement(query_element, "query_text").text = query
+        ET.SubElement(query_element, "max_results").text = str(max_results)
+        
+        # Add results
+        results = ET.SubElement(query_element, "results")
+
+        # Get the actual results from the database
+        cached_results = get_cached_results(query, max_results)
+        if cached_results:
+            for link, score in cached_results:
+                result = ET.SubElement(results, "result")
+                ET.SubElement(result, "link").text = link
+                ET.SubElement(result, "score").text = str(score)
+
+    # Convert the tree to a string
+    tree = ET.ElementTree(history)
+    xml_bytes = io.BytesIO()
+    tree.write(xml_bytes, encoding="utf-8", xml_declaration=True)
+    xml_bytes.seek(0)
+
+    # Return the XML as a downloadable file
+    return send_file(
+        xml_bytes,
+        as_attachment=True,
+        download_name="search_history.xml",
+        mimetype="application/xml"
+    )
+
+
+@app.route("/import_history", methods=["POST"])
+def import_history():
+    """
+    Import search history from an XML document.
+    """
+    file = request.files.get("file")
+    if not file:
+        return "No file provided", 400
+
+    # Parse the XML file
+    try:
+        tree = ET.parse(file)
+        root = tree.getroot()
+
+        # Process each query in the XML
+        for query_element in root.findall("query"):
+            query_text = query_element.find("query_text").text
+            max_results = int(query_element.find("max_results").text)
+            
+            # Save query to database (to keep track of it)
+            save_query(query_text, max_results, [])
+
+            # Process results and save to database
+            results = query_element.find("results")
+            for result_element in results.findall("result"):
+                link = result_element.find("link").text
+                score = float(result_element.find("score").text)
+                # Save each result
+                save_query(query_text, max_results, [(link, score)])
+
+        return "History imported successfully.", 200
+    except ET.ParseError:
+        return "Invalid XML file", 400
 
 if __name__ == "__main__":
     app.run(debug=True)

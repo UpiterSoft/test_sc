@@ -25,6 +25,17 @@
                 </li>
             {% endfor %}
         </ul>
+
+        <!-- Import and Export buttons -->
+        <h3>Manage Search History</h3>
+        <form action="/export_history" method="get">
+            <button type="submit">Export History</button>
+        </form>
+
+        <form action="/import_history" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".xml" required>
+            <button type="submit">Import History</button>
+        </form>
     </div>
 </body>
 </html>
