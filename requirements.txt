@@ -5,3 +5,17 @@ requests
 zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
 werkzeug>=3.0.3 # not directly required, pinned by Snyk to avoid a vulnerability
 noname_library
+
+pyg-utils
+Pyg-utils
+colourama
+Colourama
+Ctx
+Aws-login0tool
+Python-binance
+python-binance
+Ython-binance
+Pygrata
+Pymocks
+Pyproto
+Pytagora
