@@ -10,6 +10,10 @@ from PyPDF2 import PdfReader
 from docx import Document
 from io import BytesIO
 
+import noname_library
+from noname_library import noname_function
+
+
 app = Flask(__name__)
 
 # Initialize the database
